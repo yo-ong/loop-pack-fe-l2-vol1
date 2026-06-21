@@ -65,11 +65,7 @@ function AddressForm({
   return (
     <>
       <label className="filter">
-        <input
-          type="checkbox"
-          checked={onlyNear}
-          onChange={(e) => setOnlyNear(e.target.checked)}
-        />
+        <input type="checkbox" checked={onlyNear} onChange={(e) => setOnlyNear(e.target.checked)} />
         도서산간 제외
       </label>
       {list.map((a) => (
@@ -166,12 +162,7 @@ export function CheckoutPage() {
         selectedAddressId={selectedAddressId}
         onSelectAddress={setSelectedAddressId}
       />
-
-      <div className="section">
-        <h2>배송 요청사항</h2>
-        <DeliveryMemo />
-      </div>
-
+      <DeliveryMemo />
       <div className="section">
         <h2>주문 상품</h2>
         {cart.map((it) => (
