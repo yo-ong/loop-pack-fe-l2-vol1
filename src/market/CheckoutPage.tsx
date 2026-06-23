@@ -1,11 +1,13 @@
 import { useState } from 'react'
 import type { Address, Coupon, PaymentMethod } from './types'
-import { ADDRESSES, CART, COUPONS, MEMBER, PAST_ORDERS } from './data'
+import { ADDRESSES, CART, MEMBER, PAST_ORDERS } from './data'
 import { Price } from './Price'
 import { OrderLineRow } from './OrderLineRow'
 import { OrderStatusTag } from './OrderStatusTag'
 import { DeliveryMemo } from './DeliveryMemo'
 import './market.css'
+import { DeliveryOrders } from './DeliveryOrders'
+import { DeliveryCoupon } from './DeliveryCoupon'
 
 const PAYMENT_LABEL: Record<PaymentMethod, string> = {
   card: '신용/체크카드',
@@ -105,13 +107,12 @@ export function CheckoutPage() {
   const cart = CART
 
   const [selectedAddressId, setSelectedAddressId] = useState(ADDRESSES[0].id)
-  const [couponCode, setCouponCode] = useState('')
   const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(null)
   const [usePoint, setUsePoint] = useState(false)
   const [pointInput, setPointInput] = useState(0)
   const [payment, setPayment] = useState<PaymentMethod>('card')
-  const [isTermsOpen, setIsTermsOpen] = useState(false)
   const [agreed, setAgreed] = useState(false)
+  const [isTermsOpen, setIsTermsOpen] = useState(false)
   const [placed, setPlaced] = useState(false)
 
   const address = ADDRESSES.find((a) => a.id === selectedAddressId)!
@@ -130,12 +131,6 @@ export function CheckoutPage() {
 
   // 최종 금액을 state 에 담아둔다.
   const [finalPrice] = useState(itemTotal + shippingFee - couponDiscount - pointDiscount)
-
-  const applyCoupon = () => {
-    const found = COUPONS.find((c) => c.code === couponCode.trim())
-    setAppliedCoupon(found ?? null)
-    if (!found) alert('존재하지 않는 쿠폰이에요')
-  }
 
   if (placed) {
     return (
@@ -163,22 +158,10 @@ export function CheckoutPage() {
         onSelectAddress={setSelectedAddressId}
       />
       <DeliveryMemo />
-      <div className="section">
-        <h2>주문 상품</h2>
-        {cart.map((it) => (
-          <OrderLineRow
-            key={it.id}
-            type="product"
-            label={it.name}
-            amount={it.price * it.quantity}
-            thumbnail={it.thumbnail}
-            option={it.option}
-            quantity={it.quantity}
-          />
-        ))}
-      </div>
+      <DeliveryOrders />
+      <DeliveryCoupon appliedCoupon={appliedCoupon} setAppliedCoupon={setAppliedCoupon} />
 
-      <div className="section">
+      {/* <div className="section">
         <h2>쿠폰</h2>
         <div className="row">
           <input
@@ -190,7 +173,7 @@ export function CheckoutPage() {
           <button onClick={applyCoupon}>적용</button>
         </div>
         {appliedCoupon ? <small>{appliedCoupon.label} 적용됨</small> : null}
-      </div>
+      </div> */}
 
       <div className="section">
         <h2>적립금</h2>
