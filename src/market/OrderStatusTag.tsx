@@ -8,6 +8,7 @@ const STATUS_MAP: Record<OrderStatus, { label: string; color: string }> = {
   cancelled: { label: '주문취소', color: '#ef4444' },
 }
 
+// 매핑을 활용해 props 1개로 처리
 export function OrderStatusTag({ status }: { status: OrderStatus }) {
   const { label, color } = STATUS_MAP[status]
   return (

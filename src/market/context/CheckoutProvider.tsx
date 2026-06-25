@@ -1,3 +1,4 @@
+// Generated with Claude Code
 import { useMemo, useState } from 'react'
 import type { Address, CartItem, Coupon, Member } from '../types'
 import { CheckoutContext, type CheckoutContextValue, type OrderSummary } from './CheckoutContext'
@@ -10,6 +11,7 @@ interface CheckoutProviderProps {
   children: React.ReactNode
 }
 
+// data로 계산된 값들이 전역적으로 사용되어 context를 사용
 export function CheckoutProvider({
   cart,
   addresses,

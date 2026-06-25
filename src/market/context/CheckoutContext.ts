@@ -1,3 +1,4 @@
+// Generated with Claude Code
 import { createContext, useContext } from 'react'
 import type { Address, CartItem, Coupon, Member } from '../types'
 

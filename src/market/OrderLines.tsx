@@ -1,3 +1,4 @@
+// Generated with Claude Code
 import { OrderLineRow } from './OrderLineRow'
 import type { CartItem } from './types'
 

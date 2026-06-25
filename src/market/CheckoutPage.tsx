@@ -29,6 +29,7 @@ function CheckoutContent() {
     return <OrderComplete onBack={() => setPlaced(false)} />
   }
 
+  // 조합과 구현을 구분하기 위해 Page 컴포넌트는 조합위주로 리펙토링
   return (
     <div className="checkout">
       <h1>주문/결제</h1>
