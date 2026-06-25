@@ -5,12 +5,7 @@ import type { Address } from './types'
 import { useCheckout } from './context'
 
 export function DeliveryAddress() {
-  const {
-    addresses,
-    selectedAddressId,
-    setSelectedAddressId: onSelectAddress,
-    selectedAddress,
-  } = useCheckout()
+  const { selectedAddress } = useCheckout()
   const [expanded, setExpanded] = useState(false)
   return (
     <div className="section">
@@ -21,11 +16,7 @@ export function DeliveryAddress() {
         </button>
       </div>
       {expanded ? (
-        <AddressForm
-          addresses={addresses}
-          selectedAddressId={selectedAddressId}
-          onSelectAddress={onSelectAddress}
-        />
+        <AddressForm />
       ) : (
         <p className="addr-summary">
           {selectedAddress.label} · {selectedAddress.recipient} ({selectedAddress.detail})
@@ -35,15 +26,8 @@ export function DeliveryAddress() {
   )
 }
 
-function AddressForm({
-  addresses,
-  selectedAddressId,
-  onSelectAddress,
-}: {
-  addresses: Address[]
-  selectedAddressId: string
-  onSelectAddress: (id: string) => void
-}) {
+function AddressForm() {
+  const { addresses } = useCheckout()
   const [onlyNear, setOnlyNear] = useState(false)
   const list = onlyNear ? addresses.filter((a) => !a.isRemote) : addresses
   return (
@@ -53,29 +37,18 @@ function AddressForm({
         도서산간 제외
       </label>
       {list.map((a) => (
-        <AddressField
-          key={a.id}
-          address={a}
-          selected={a.id === selectedAddressId}
-          onSelect={onSelectAddress}
-        />
+        <AddressField key={a.id} address={a} />
       ))}
     </>
   )
 }
 
-function AddressField({
-  address,
-  selected,
-  onSelect,
-}: {
-  address: Address
-  selected: boolean
-  onSelect: (id: string) => void
-}) {
+function AddressField({ address }: { address: Address }) {
+  const { selectedAddressId, setSelectedAddressId } = useCheckout()
+  const selected = address.id === selectedAddressId
   return (
     <label className="addr">
-      <input type="radio" checked={selected} onChange={() => onSelect(address.id)} />
+      <input type="radio" checked={selected} onChange={() => setSelectedAddressId(address.id)} />
       <span>
         {address.label} · {address.recipient} ({address.detail})
         {address.isRemote ? ' · 도서산간' : ''}
