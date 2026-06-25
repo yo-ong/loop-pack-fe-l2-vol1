@@ -7,7 +7,7 @@ import { DeliveryOrders } from './DeliveryOrders'
 import { DeliveryCoupon } from './DeliveryCoupon'
 import { DeliveryAddress } from './DeliveryAddress'
 import { DeliveryPoint } from './DeliveryPoint'
-import { PaymentMethodSection } from './PaymentMethodSection'
+import { PaymentMethod } from './PaymentMethod'
 import { PaymentSummary } from './PaymentSummary'
 import { OrderAgreement } from './OrderAgreement'
 import { OrderComplete } from './OrderComplete'
@@ -38,7 +38,7 @@ function CheckoutContent() {
       <DeliveryOrders />
       <DeliveryCoupon />
       <DeliveryPoint />
-      <PaymentMethodSection />
+      <PaymentMethod />
       <PaymentSummary />
       <OrderAgreement onPlace={() => setPlaced(true)} />
 
