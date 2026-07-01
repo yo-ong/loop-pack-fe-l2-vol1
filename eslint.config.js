@@ -21,7 +21,6 @@ export default defineConfig([
     languageOptions: {
       ecmaVersion: "latest",
       globals: globals.browser,
-      projectService: true,
     },
     settings: { react: { version: "detect" } },
     plugins: {
