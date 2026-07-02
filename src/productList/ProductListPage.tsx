@@ -1,8 +1,9 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import "./ProductListPage.css";
 import { useProductList } from "./hooks/useProductList";
 import type { Product, SortBy } from "./types";
 import { useProductFilters } from "./hooks/useProductFilters";
+import { usePersistentList } from "./hooks/usePersistentList";
 
 // ─────────────────────────────────────────────────────────
 // 카테고리 / 정렬 옵션 — 컴포넌트 안에 들고 다닌다
@@ -52,6 +53,10 @@ export function ProductListPage() {
     handleResetFilters,
   } = useProductFilters();
 
+  // ─── 위시리스트 (localStorage 동기화) ───────────────────
+  const { wishlist, handleProductClick, handleWishlistToggle } =
+    usePersistentList();
+
   // ─── 서버 상태 (직접 관리) ──────────────────────────────
   const { products, totalCount, isLoading, error } = useProductList({
     category,
@@ -65,63 +70,10 @@ export function ProductListPage() {
   // ─── 옵션 토글 ──────────────────────────────────────────
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
-  // ─── 위시리스트 (localStorage 동기화) ───────────────────
-  const [wishlist, setWishlist] = useState<number[]>(() => {
-    try {
-      const stored = localStorage.getItem("wishlist");
-      return stored ? JSON.parse(stored) : [];
-    } catch {
-      return [];
-    }
-  });
-
-  // ─── 최근 본 상품 (localStorage 동기화) ─────────────────
-  const [recentlyViewed, setRecentlyViewed] = useState<number[]>(() => {
-    try {
-      const stored = localStorage.getItem("recentlyViewed");
-      return stored ? JSON.parse(stored) : [];
-    } catch {
-      return [];
-    }
-  });
-
-  // ─── 위시리스트가 바뀔 때마다 localStorage 동기화 ───────
-  useEffect(() => {
-    try {
-      localStorage.setItem("wishlist", JSON.stringify(wishlist));
-    } catch {
-      // localStorage 사용 불가 시 무시
-    }
-  }, [wishlist]);
-
-  // ─── 최근 본 상품도 localStorage 동기화 ─────────────────
-  useEffect(() => {
-    try {
-      localStorage.setItem("recentlyViewed", JSON.stringify(recentlyViewed));
-    } catch {
-      // localStorage 사용 불가 시 무시
-    }
-  }, [recentlyViewed]);
-
   const visiableProducts = useMemo(
     () => (inStockOnly ? products.filter((p) => p.stock > 0) : products),
     [products, inStockOnly], // 둘 중 하나 바뀔 때만 재계산
   );
-
-  const handleWishlistToggle = (productId: number) => {
-    setWishlist((prev) =>
-      prev.includes(productId)
-        ? prev.filter((id) => id !== productId)
-        : [...prev, productId],
-    );
-  };
-
-  const handleProductClick = (productId: number) => {
-    setRecentlyViewed((prev) => {
-      const without = prev.filter((id) => id !== productId);
-      return [productId, ...without].slice(0, 10);
-    });
-  };
 
   // ─── 페이지네이션 계산 (인라인) ─────────────────────────
   const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
