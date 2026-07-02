@@ -1,35 +1,10 @@
 import { useMemo, useState } from "react";
 import "./ProductListPage.css";
 import { useProductList } from "./hooks/useProductList";
-import type { Product, SortBy } from "./types";
 import { useProductFilters } from "./hooks/useProductFilters";
 import { usePersistentList } from "./hooks/usePersistentList";
 import { ProductCard } from "./components/ProductCard";
-
-// ─────────────────────────────────────────────────────────
-// 카테고리 / 정렬 옵션 — 컴포넌트 안에 들고 다닌다
-// ─────────────────────────────────────────────────────────
-
-const CATEGORIES: { value: "all" | Product["category"]; label: string }[] = [
-  { value: "all", label: "전체" },
-  { value: "electronics", label: "전자제품" },
-  { value: "fashion", label: "패션" },
-  { value: "home", label: "홈" },
-  { value: "beauty", label: "뷰티" },
-];
-
-const SORT_OPTIONS: { value: SortBy; label: string }[] = [
-  { value: "latest", label: "최신순" },
-  { value: "popular", label: "인기순" },
-  { value: "price-asc", label: "가격 낮은순" },
-  { value: "price-desc", label: "가격 높은순" },
-];
-
-const PAGE_SIZE = 12;
-
-// ─────────────────────────────────────────────────────────
-// 500줄+ 컴포넌트 — UI, 비즈니스 로직, API, 포맷, 도메인 규칙이 한 파일에
-// ─────────────────────────────────────────────────────────
+import { CATEGORIES, PAGE_SIZE, SORT_OPTIONS } from "./contants";
 
 export function ProductListPage() {
   // ─── 필터,검색,페이지네이션 상태 & URL 동기화 ──────────────────────────────────────────
