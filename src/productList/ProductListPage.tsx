@@ -1,29 +1,7 @@
-import { useState, useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import "./ProductListPage.css";
-
-// ─────────────────────────────────────────────────────────
-// 타입도 한 파일에 (실무에서 흔히 보는 모습)
-// ─────────────────────────────────────────────────────────
-
-type Product = {
-  id: number;
-  name: string;
-  category: "electronics" | "fashion" | "home" | "beauty";
-  price: number;
-  originalPrice?: number;
-  stock: number;
-  imageUrl: string;
-  createdAt: string;
-  rating: number;
-  reviewCount: number;
-};
-
-type ProductListResponse = {
-  products: Product[];
-  totalCount: number;
-};
-
-type SortBy = "latest" | "popular" | "price-asc" | "price-desc";
+import { useProductList } from "./hooks/useProductList";
+import type { Product, SortBy } from "./types";
 
 // ─────────────────────────────────────────────────────────
 // 카테고리 / 정렬 옵션 — 컴포넌트 안에 들고 다닌다
@@ -54,12 +32,6 @@ const escapeRegExp = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 // ─────────────────────────────────────────────────────────
 
 export function ProductListPage() {
-  // ─── 서버 상태 (직접 관리) ──────────────────────────────
-  const [products, setProducts] = useState<Product[]>([]);
-  const [totalCount, setTotalCount] = useState(0);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
-
   // ─── 필터 상태 ──────────────────────────────────────────
   const [category, setCategory] = useState<"all" | Product["category"]>("all");
   const [minPrice, setMinPrice] = useState<number | "">("");
@@ -71,6 +43,16 @@ export function ProductListPage() {
 
   // ─── 페이지네이션 상태 ──────────────────────────────────
   const [page, setPage] = useState(1);
+
+  // ─── 서버 상태 (직접 관리) ──────────────────────────────
+  const { products, totalCount, isLoading, error } = useProductList({
+    category,
+    minPrice,
+    maxPrice,
+    sortBy,
+    searchQuery,
+    page,
+  });
 
   // ─── 옵션 토글 ──────────────────────────────────────────
   const [inStockOnly, setInStockOnly] = useState(false);
@@ -95,35 +77,6 @@ export function ProductListPage() {
       return [];
     }
   });
-
-  useEffect(() => {
-    const fetchProducts = async () => {
-      setIsLoading(true);
-      setError(null);
-      const params = new URLSearchParams({
-        category,
-        sort: sortBy,
-        q: searchQuery,
-        page: String(page),
-        size: String(PAGE_SIZE),
-      });
-      if (minPrice !== "") params.set("minPrice", String(minPrice));
-      if (maxPrice !== "") params.set("maxPrice", String(maxPrice));
-      if (inStockOnly) params.set("inStock", "true");
-      try {
-        const res = await fetch(`/api/products?${params.toString()}`);
-        if (!res.ok) throw new Error(`API 호출 실패 (status: ${res.status})`);
-        const data: ProductListResponse = await res.json();
-        setProducts(data.products);
-        setTotalCount(data.totalCount);
-      } catch (err) {
-        setError(err as Error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchProducts();
-  }, [category, minPrice, maxPrice, sortBy, searchQuery, page, inStockOnly]);
 
   // ─── 위시리스트가 바뀔 때마다 localStorage 동기화 ───────
   useEffect(() => {
@@ -160,6 +113,11 @@ export function ProductListPage() {
     if (inStockOnly) params.set("inStock", "true");
     window.history.replaceState(null, "", `?${params.toString()}`);
   }, [category, searchQuery, page, sortBy, minPrice, maxPrice, inStockOnly]);
+
+  const visiableProducts = useMemo(
+    () => (inStockOnly ? products.filter((p) => p.stock > 0) : products),
+    [products, inStockOnly], // 둘 중 하나 바뀔 때만 재계산
+  );
 
   const handleCategoryChange = (cat: "all" | Product["category"]) => {
     setCategory(cat);
@@ -230,7 +188,7 @@ export function ProductListPage() {
   for (let i = startPage; i <= endPage; i++) pageNumbers.push(i);
 
   // ─── 로딩/에러는 early return ───────────────────────────
-  if (isLoading && products.length === 0) {
+  if (isLoading && visiableProducts.length === 0) {
     return <div className="loading">로딩 중...</div>;
   }
 
@@ -348,10 +306,10 @@ export function ProductListPage() {
         className="product-grid"
         style={viewMode === "list" ? { gridTemplateColumns: "1fr" } : undefined}
       >
-        {products.length === 0 ? (
+        {visiableProducts.length === 0 ? (
           <div className="empty">조건에 맞는 상품이 없습니다.</div>
         ) : (
-          products.map((product) => {
+          visiableProducts.map((product) => {
             // ─── 검색어 하이라이팅 로직 인라인 ──────────
             const highlightMatch = (text: string) => {
               if (!searchQuery) return <>{text}</>;
@@ -528,7 +486,7 @@ export function ProductListPage() {
       )}
 
       {/* ─── 백그라운드 로딩 인디케이터 ─────────────────── */}
-      {isLoading && products.length > 0 && (
+      {isLoading && visiableProducts.length > 0 && (
         <div className="background-loading">데이터 갱신 중...</div>
       )}
     </div>
