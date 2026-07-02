@@ -1,4 +1,5 @@
 import type { Product } from "../types";
+import { HighlightText } from "./HighlightText";
 
 interface ProductCardProps {
   product: Product;
@@ -8,8 +9,6 @@ interface ProductCardProps {
   onClick: (n: number) => void;
 }
 
-const escapeRegExp = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-
 export function ProductCard({
   product,
   searchQuery,
@@ -17,28 +16,6 @@ export function ProductCard({
   onToggle,
   onClick,
 }: ProductCardProps) {
-  const highlightMatch = (text: string) => {
-    if (!searchQuery) return <>{text}</>;
-
-    const parts = text.split(
-      new RegExp(`(${escapeRegExp(searchQuery)})`, "gi"),
-    );
-
-    return (
-      <>
-        {parts.map((part, i) =>
-          part.toLowerCase() === searchQuery.toLowerCase() ? (
-            <mark key={i} style={{ background: "#fff176", padding: 0 }}>
-              {part}
-            </mark>
-          ) : (
-            part
-          ),
-        )}
-      </>
-    );
-  };
-
   const discountRate = product.originalPrice
     ? Math.round((1 - product.price / product.originalPrice) * 100)
     : 0;
@@ -81,7 +58,9 @@ export function ProductCard({
       </div>
 
       <div className="card-body">
-        <h3 className="product-name">{highlightMatch(product.name)}</h3>
+        <h3 className="product-name">
+          <HighlightText query={searchQuery} text={product.name} />
+        </h3>
         <div className="price-area">
           {formattedOriginal && (
             <span className="original-price">{formattedOriginal}</span>
