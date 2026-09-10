@@ -24,3 +24,5 @@ export const sharedOpenGraph = {
   type: "website",
   images: [OG_FALLBACK_IMAGE],
 } satisfies Metadata["openGraph"];
+
+export const ciExperimentMarker = "src-touch";
