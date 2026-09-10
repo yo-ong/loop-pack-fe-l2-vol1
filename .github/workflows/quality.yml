@@ -20,8 +20,7 @@ defaults:
     shell: bash
 
 env:
-  APP_ORIGIN: not-a-url
-  NEXT_PUBLIC_AUTH_SESSION_SECRET: leaked
+  APP_ORIGIN: http://localhost:3000
 
 jobs:
   lint:
