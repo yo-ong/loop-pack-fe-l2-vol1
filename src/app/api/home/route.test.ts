@@ -2,8 +2,7 @@ import { NextRequest } from "next/server";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { GET } from "./route";
 
-const request = (query = "") =>
-  GET(new NextRequest(`http://localhost/api/home${query}`));
+const request = (query = "") => GET(new NextRequest(`http://localhost/api/home${query}`));
 
 describe("GET /api/home", () => {
   afterEach(() => {
